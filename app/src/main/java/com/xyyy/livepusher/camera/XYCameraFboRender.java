@@ -61,8 +61,8 @@ public class XYCameraFboRender {
     }
 
     public void onCreate(){
-        String vertexSource = XYShaderUtil.getRawResource(context, R.raw.vertex_shader);
-        String fragmentSource = XYShaderUtil.getRawResource(context, R.raw.fragment_shader_screen);
+        String vertexSource = XYShaderUtil.getRawResource(context, R.raw.vertex_shader_fbo);
+        String fragmentSource = XYShaderUtil.getRawResource(context, R.raw.fragment_shader_fbo);
 
         program = XYShaderUtil.createProgram(vertexSource, fragmentSource);
 

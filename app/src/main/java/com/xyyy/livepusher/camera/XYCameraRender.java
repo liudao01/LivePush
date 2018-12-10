@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.SurfaceTexture;
 import android.opengl.GLES11Ext;
 import android.opengl.GLES20;
+import android.opengl.Matrix;
 
 import com.xyyy.livepusher.LogUtil;
 import com.xyyy.livepusher.R;
@@ -19,7 +20,7 @@ import java.nio.FloatBuffer;
  * @explain
  * @time 2018/12/7 15:54
  */
-public class XYCameraRender implements XYEGLSurfaceView.XYGLRender ,SurfaceTexture.OnFrameAvailableListener{
+public class XYCameraRender implements XYEGLSurfaceView.XYGLRender, SurfaceTexture.OnFrameAvailableListener {
 
     private Context context;
 
@@ -58,6 +59,10 @@ public class XYCameraRender implements XYEGLSurfaceView.XYGLRender ,SurfaceTextu
     private SurfaceTexture surfaceTexture;
     private XYCameraFboRender xyCameraFboRender;
 
+    private int umatrix;
+    private float[] matrix = new float[16];
+
+
     private OnSurfaceCreateListener onSurfaceCreateListener;
 
     public XYCameraRender(Context context) {
@@ -76,6 +81,8 @@ public class XYCameraRender implements XYEGLSurfaceView.XYGLRender ,SurfaceTextu
                 .asFloatBuffer()
                 .put(fragmentData);
         fragmentBuffer.position(0);
+
+        Matrix.setIdentityM(matrix, 0);
     }
 
     public void setOnSurfaceCreateListener(OnSurfaceCreateListener onSurfaceCreateListener) {
@@ -94,6 +101,7 @@ public class XYCameraRender implements XYEGLSurfaceView.XYGLRender ,SurfaceTextu
 
         vPosition = GLES20.glGetAttribLocation(program, "v_Position");
         fPosition = GLES20.glGetAttribLocation(program, "f_Position");
+        umatrix = GLES20.glGetUniformLocation(program, "u_Matrix");
 
         //VBO
         int[] vbos = new int[1];
@@ -175,8 +183,10 @@ public class XYCameraRender implements XYEGLSurfaceView.XYGLRender ,SurfaceTextu
 
     @Override
     public void onSurfaceChanged(int width, int height) {
-        xyCameraFboRender.onChange(width,height);
+        xyCameraFboRender.onChange(width, height);
         GLES20.glViewport(0, 0, width, height);
+
+
     }
 
     @Override
@@ -185,9 +195,14 @@ public class XYCameraRender implements XYEGLSurfaceView.XYGLRender ,SurfaceTextu
         surfaceTexture.updateTexImage();
 
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
-        GLES20.glClearColor(1f,0f, 0f, 1f);
+        GLES20.glClearColor(1f, 0f, 0f, 1f);
 
         GLES20.glUseProgram(program);
+
+        //使用program后调用矩阵
+        GLES20.glUniformMatrix4fv(umatrix, 1, false, matrix, 0);
+
+
         GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, fboId);
         GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, vboId);
 
@@ -218,7 +233,7 @@ public class XYCameraRender implements XYEGLSurfaceView.XYGLRender ,SurfaceTextu
 
     }
 
-    public interface  OnSurfaceCreateListener{
+    public interface OnSurfaceCreateListener {
         void onSurfaceCreate(SurfaceTexture surfaceTexture);
     }
 }
