@@ -1,5 +1,6 @@
 package com.xyyy.livepusher.activity;
 
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -31,6 +32,12 @@ public class CameraPreActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         cameraview.onDestory();
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        cameraview.previewAngle(this);
     }
 }
 

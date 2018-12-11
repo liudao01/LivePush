@@ -3,7 +3,7 @@ package com.xyyy.livepusher.egl;
 import android.content.Context;
 import android.opengl.GLES20;
 
-import com.xyyy.livepusher.LogUtil;
+import com.xyyy.livepusher.util.LogUtil;
 
 import java.io.BufferedReader;
 import java.io.InputStream;

@@ -1,10 +1,14 @@
 package com.xyyy.livepusher.camera;
 
+import android.content.Context;
 import android.graphics.ImageFormat;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
 
+import com.xyyy.livepusher.util.DisplayUtil;
+
 import java.io.IOException;
+import java.util.List;
 
 /**
  * @author liuml
@@ -17,9 +21,12 @@ public class XYCamera {
     //导包注意用硬件的
     private Camera camera;
 
+    private int width;
+    private int height;
 
-    public XYCamera() {
-
+    public XYCamera(Context context) {
+        this.width = DisplayUtil.getScreenWidth(context);
+        this.height = DisplayUtil.getScreenHeight(context);
     }
 
     /**
@@ -40,15 +47,14 @@ public class XYCamera {
             parameters.setFlashMode("off");//闪光灯
             parameters.setPreviewFormat(ImageFormat.NV21);
 
-            parameters.setPictureSize(parameters.getSupportedPictureSizes().get(0).width,
-                    parameters.getSupportedPictureSizes().get(0).height);
+            Camera.Size size = getFitSize(parameters.getSupportedPictureSizes());
+            parameters.setPictureSize(size.width, size.height);
 
-            parameters.setPreviewSize(parameters.getSupportedPreviewSizes().get(0).width,
-                    parameters.getSupportedPreviewSizes().get(0).height);
+            size = getFitSize(parameters.getSupportedPreviewSizes());
+            parameters.setPreviewSize(size.width, size.height);
 
             camera.setParameters(parameters);
             camera.startPreview();
-
 
 
         } catch (IOException e) {
@@ -56,7 +62,7 @@ public class XYCamera {
         }
     }
 
-    public void stopPreview(){
+    public void stopPreview() {
         if (camera != null) {
             camera.stopPreview();
             camera.release();
@@ -72,6 +78,22 @@ public class XYCamera {
         setCameraParm(cameraId);
 
     }
+
+    private Camera.Size getFitSize(List<Camera.Size> sizes) {
+        if (width < height) {
+            int t = height;
+            height = width;
+            width = t;
+        }
+
+        for (Camera.Size size : sizes) {
+            if (1.0f * size.width / size.height == 1.0f * width / height) {
+                return size;
+            }
+        }
+        return sizes.get(0);
+    }
+
 }
 
 

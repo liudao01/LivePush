@@ -6,7 +6,8 @@ import android.opengl.GLES11Ext;
 import android.opengl.GLES20;
 import android.opengl.Matrix;
 
-import com.xyyy.livepusher.LogUtil;
+import com.xyyy.livepusher.util.DisplayUtil;
+import com.xyyy.livepusher.util.LogUtil;
 import com.xyyy.livepusher.R;
 import com.xyyy.livepusher.egl.XYEGLSurfaceView;
 import com.xyyy.livepusher.egl.XYShaderUtil;
@@ -56,6 +57,10 @@ public class XYCameraRender implements XYEGLSurfaceView.XYGLRender, SurfaceTextu
     private int screenW = 1080;
     private int screenH = 1920;
 
+    //实际渲染的大小
+    private int width;
+    private int height;
+
     private SurfaceTexture surfaceTexture;
     private XYCameraFboRender xyCameraFboRender;
 
@@ -67,6 +72,9 @@ public class XYCameraRender implements XYEGLSurfaceView.XYGLRender, SurfaceTextu
 
     public XYCameraRender(Context context) {
         this.context = context;
+
+        screenW = DisplayUtil.getScreenWidth(context);
+        screenH = DisplayUtil.getScreenHeight(context);
 
         xyCameraFboRender = new XYCameraFboRender(context);
 
@@ -82,7 +90,7 @@ public class XYCameraRender implements XYEGLSurfaceView.XYGLRender, SurfaceTextu
                 .put(fragmentData);
         fragmentBuffer.position(0);
 
-        Matrix.setIdentityM(matrix, 0);
+
     }
 
     public void setOnSurfaceCreateListener(OnSurfaceCreateListener onSurfaceCreateListener) {
@@ -181,11 +189,35 @@ public class XYCameraRender implements XYEGLSurfaceView.XYGLRender, SurfaceTextu
 
     }
 
+    /**
+     * 重置矩阵
+     */
+    public void resetMatrix(){
+        Matrix.setIdentityM(matrix, 0);
+    }
+
+    /**
+     * 设置角度
+     * @param angle
+     * @param x
+     * @param y
+     * @param z
+     */
+    public void setAngle(float angle, float x, float y, float z) {
+        //旋转
+        Matrix.rotateM(matrix, 0, angle, x, y, z);
+    }
+
     @Override
     public void onSurfaceChanged(int width, int height) {
-        xyCameraFboRender.onChange(width, height);
-        GLES20.glViewport(0, 0, width, height);
+        this.width = width;
+        this.height = height;
+//        xyCameraFboRender.onChange(width, height);
+//       GLES20.glViewport(0, 0, width, height);
 
+//        //旋转
+//        Matrix.rotateM(matrix, 0, 90, 0, 0, 1);//沿着z轴 90度
+//        Matrix.rotateM(matrix, 0, 180, 1, 0, 0);//沿着x周180度
 
     }
 
@@ -199,6 +231,7 @@ public class XYCameraRender implements XYEGLSurfaceView.XYGLRender, SurfaceTextu
 
         GLES20.glUseProgram(program);
 
+        GLES20.glViewport(0, 0, screenW, screenH);
         //使用program后调用矩阵
         GLES20.glUniformMatrix4fv(umatrix, 1, false, matrix, 0);
 
@@ -222,6 +255,7 @@ public class XYCameraRender implements XYEGLSurfaceView.XYGLRender, SurfaceTextu
 
         GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, 0);
 
+        xyCameraFboRender.onChange(width, height);//
         //绘制
         xyCameraFboRender.onDraw(fboTextureid);
 

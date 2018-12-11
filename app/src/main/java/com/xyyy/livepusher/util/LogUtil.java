@@ -1,6 +1,8 @@
-package com.xyyy.livepusher;
+package com.xyyy.livepusher.util;
 
 import android.util.Log;
+
+import com.xyyy.livepusher.BuildConfig;
 
 
 /**
