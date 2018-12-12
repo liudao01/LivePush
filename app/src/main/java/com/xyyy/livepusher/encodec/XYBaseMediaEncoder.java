@@ -127,11 +127,14 @@ public abstract class XYBaseMediaEncoder {
     private void initVideoEncodec(String mimeType, int width, int height) {
         try {
             videoBufferInfo = new MediaCodec.BufferInfo();
+            LogUtil.d("mimeType = "+mimeType + " width = "+width + "  height = "+height);
             videoFormat = MediaFormat.createVideoFormat(mimeType, width, height);
             videoFormat.setInteger(MediaFormat.KEY_COLOR_FORMAT, MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface);//Surface
-            videoFormat.setInteger(MediaFormat.KEY_BITRATE_MODE, width * height * 4);//码率
+            videoFormat.setInteger(MediaFormat.KEY_BIT_RATE, width * height * 4);//码率
             videoFormat.setInteger(MediaFormat.KEY_FRAME_RATE, 30);//帧率
             videoFormat.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, 1);//I帧 关键帧的间隔  设置为1秒
+
+
 
             //编码
             videoEncodec = MediaCodec.createEncoderByType(mimeType);
@@ -141,6 +144,7 @@ public abstract class XYBaseMediaEncoder {
 
 
         } catch (IOException e) {
+            LogUtil.e(e.getMessage());
             e.printStackTrace();
             videoEncodec = null;
             videoFormat = null;
@@ -319,7 +323,7 @@ public abstract class XYBaseMediaEncoder {
                         mediaMuxer.writeSampleData(videoTrackIndex, outputBuffer, videoBufferInfo);
 
                         if (encoder.get().onMediaInfoListener != null) {
-                            encoder.get().onMediaInfoListener.onMediaTime(videoBufferInfo.presentationTimeUs / 1000000);
+                            encoder.get().onMediaInfoListener.onMediaTime((int) videoBufferInfo.presentationTimeUs / 1000000);
                         }
 
                         //编码完了释放
@@ -339,7 +343,7 @@ public abstract class XYBaseMediaEncoder {
 
 
     public interface OnMediaInfoListener {
-        void onMediaTime(long times);
+        void onMediaTime(int times);
     }
 }
 

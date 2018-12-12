@@ -13,7 +13,7 @@ import com.xyyy.livepusher.encodec.XYBaseMediaEncoder;
 import com.xyyy.livepusher.encodec.XYMediaEncodec;
 import com.xyyy.livepusher.util.LogUtil;
 
-public class VideoActivity extends AppCompatActivity {
+public class VideoActivity extends AppCompatActivity implements View.OnClickListener {
 
     private XYCamaryView cameraview;
     private Button btRecord;
@@ -30,16 +30,21 @@ public class VideoActivity extends AppCompatActivity {
     private void initView() {
         cameraview = findViewById(R.id.cameraview);
         btRecord = findViewById(R.id.bt_record);
+
+        btRecord.setOnClickListener(this);
     }
 
+
     //录制
-    public void record(View view) {
+    public void btrecord() {
         if (xyMediaEncodec == null) {
             xyMediaEncodec = new XYMediaEncodec(this, cameraview.getTextureId());
-            xyMediaEncodec.initEncodec(cameraview.getEglContext(), Environment.getExternalStorageState()+"/test_live.mp4", MediaFormat.MIMETYPE_VIDEO_AVC, 1080, 1920);
+            xyMediaEncodec.initEncodec(cameraview.getEglContext(),
+                    Environment.getExternalStorageDirectory().getAbsolutePath() + "/test_live.mp4",
+                    MediaFormat.MIMETYPE_VIDEO_AVC, 1080, 1920);
             xyMediaEncodec.setOnMediaInfoListener(new XYBaseMediaEncoder.OnMediaInfoListener() {
                 @Override
-                public void onMediaTime(long times) {
+                public void onMediaTime(int times) {
                     LogUtil.d("time = " + times);
                 }
             });
@@ -51,6 +56,14 @@ public class VideoActivity extends AppCompatActivity {
             btRecord.setText("开始录制");
             xyMediaEncodec = null;
         }
+    }
 
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.bt_record:
+                btrecord();
+                break;
+        }
     }
 }
