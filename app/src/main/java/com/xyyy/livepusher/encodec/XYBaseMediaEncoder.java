@@ -134,8 +134,6 @@ public abstract class XYBaseMediaEncoder {
             videoFormat.setInteger(MediaFormat.KEY_FRAME_RATE, 30);//帧率
             videoFormat.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, 1);//I帧 关键帧的间隔  设置为1秒
 
-
-
             //编码
             videoEncodec = MediaCodec.createEncoderByType(mimeType);
             videoEncodec.configure(videoFormat, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE);
@@ -299,9 +297,15 @@ public abstract class XYBaseMediaEncoder {
             pts = 0;
             while (true) {
                 if (isExit) {
+                    //先把编码器停止
                     videoEncodec.stop();
                     videoEncodec.release();
                     videoEncodec = null;
+
+                    //用medioMuxer 停止的时候才会把头信息写入视频
+                    mediaMuxer.stop();
+                    mediaMuxer.release();
+                    mediaMuxer  = null;
                     LogUtil.d("录制完成 ");
                     break;
                 }
