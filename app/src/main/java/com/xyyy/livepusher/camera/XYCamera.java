@@ -79,6 +79,11 @@ public class XYCamera {
 
     }
 
+    /**
+     * 动态的设置宽高
+     * @param sizes
+     * @return
+     */
     private Camera.Size getFitSize(List<Camera.Size> sizes) {
         if (width < height) {
             int t = height;

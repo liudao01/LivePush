@@ -21,7 +21,7 @@ public class XYCamaryView extends XYEGLSurfaceView {
     private XYCamera xyCamera;
     //摄像头
     private int cameraId = Camera.CameraInfo.CAMERA_FACING_BACK;
-
+    private int textureId = -1;
 
     public XYCamaryView(Context context) {
         this(context, null);
@@ -39,11 +39,13 @@ public class XYCamaryView extends XYEGLSurfaceView {
         previewAngle(context);
         xyCameraRender.setOnSurfaceCreateListener(new XYCameraRender.OnSurfaceCreateListener() {
             @Override
-            public void onSurfaceCreate(SurfaceTexture surfaceTexture) {
+            public void onSurfaceCreate(SurfaceTexture surfaceTexture,int tid) {
                 LogUtil.d("render 回调");
                 xyCamera.initCamera(surfaceTexture, cameraId);
+                textureId = tid;
             }
         });
+
     }
 
 
@@ -102,6 +104,10 @@ public class XYCamaryView extends XYEGLSurfaceView {
 
     }
 
+
+    public int getTextureId(){
+        return textureId;
+    }
     public void onDestory() {
         if (xyCamera != null) {
             xyCamera.stopPreview();

@@ -26,4 +26,9 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(this, CameraPreActivity.class);
         startActivity(intent);
     }
+
+    public void videoRecode(View view) {
+        Intent intent = new Intent(this, VideoActivity.class);
+        startActivity(intent);
+    }
 }
