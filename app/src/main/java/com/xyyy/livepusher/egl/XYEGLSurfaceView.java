@@ -35,7 +35,7 @@ public abstract class XYEGLSurfaceView extends SurfaceView implements SurfaceHol
     }
 
     public XYEGLSurfaceView(Context context, AttributeSet attrs) {
-        super(context, attrs, 0);
+        this(context, attrs, 0);
     }
 
     public XYEGLSurfaceView(Context context, AttributeSet attrs, int defStyleAttr) {

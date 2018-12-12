@@ -143,8 +143,7 @@ public class XYCameraRender implements XYEGLSurfaceView.XYGLRender, SurfaceTextu
         fboTextureid = textureIds[0];
 
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, fboTextureid);
-
-        GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
+//        GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
 //        GLES20.glUniform1i(sampler, 0);
 
         GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_S, GLES20.GL_REPEAT);
@@ -153,8 +152,8 @@ public class XYCameraRender implements XYEGLSurfaceView.XYGLRender, SurfaceTextu
         GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_LINEAR);
         GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR);
 
-        GLES20.glFramebufferTexture2D(GLES20.GL_FRAMEBUFFER, GLES20.GL_COLOR_ATTACHMENT0, GLES20.GL_TEXTURE_2D, fboTextureid, 0);//把纹理绑定到FBO上
         GLES20.glTexImage2D(GLES20.GL_TEXTURE_2D, 0, GLES20.GL_RGBA, screenW, screenH, 0, GLES20.GL_RGBA, GLES20.GL_UNSIGNED_BYTE, null);
+        GLES20.glFramebufferTexture2D(GLES20.GL_FRAMEBUFFER, GLES20.GL_COLOR_ATTACHMENT0, GLES20.GL_TEXTURE_2D, fboTextureid, 0);//把纹理绑定到FBO上
 
         if (GLES20.glCheckFramebufferStatus(GLES20.GL_FRAMEBUFFER) != GLES20.GL_FRAMEBUFFER_COMPLETE) {
             LogUtil.e("fbo wrong");
@@ -167,9 +166,10 @@ public class XYCameraRender implements XYEGLSurfaceView.XYGLRender, SurfaceTextu
         GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, 0);
 
         //扩展纹理  eos
-        int[] texturesidseos = new int[1];
-        GLES20.glGenTextures(1, texturesidseos, 0);
-        cameraTextureid = textureIds[0];
+        int[] textureidsEos = new int[1];
+        GLES20.glGenTextures(1, textureidsEos, 0);
+        cameraTextureid = textureidsEos[0];
+//
 
         GLES20.glBindTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, cameraTextureid);
 
