@@ -4,6 +4,7 @@ import android.content.Context;
 import android.util.AttributeSet;
 
 import com.xyyy.livepusher.egl.XYEGLSurfaceView;
+import com.xyyy.livepusher.util.LogUtil;
 
 /**
  * @author liuml
@@ -30,11 +31,13 @@ public class XYImgVideoView extends XYEGLSurfaceView {
         xyImgVideoRender = new XYImgVideoRender(context);
         setRender(xyImgVideoRender);
         setRenderMode(XYEGLSurfaceView.RENDERMODE_WHEN_DIRTY);
-        xyImgVideoRender.setOnSurfaceCreateListener(new XYImgVideoRender.OnSurfaceCreateListener() {
+        xyImgVideoRender.setOnSurfaceCreateListener(new XYImgVideoRender.OnRenderCreateListener() {
             @Override
-            public void onSurfaceCreate(int textureId) {
-                fbotextureid = textureId;
+            public void onCreate(int textureId) {
+
+            fbotextureid = textureId;
             }
+
         });
     }
 
@@ -42,6 +45,7 @@ public class XYImgVideoView extends XYEGLSurfaceView {
         if (xyImgVideoRender != null) {
             xyImgVideoRender.setCurrentImgSrc(imgsrc);
             requestRender();//手动刷新 调用一次
+            LogUtil.d("手动刷新");
         }
     }
 

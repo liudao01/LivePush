@@ -11,7 +11,6 @@ import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 
 public class XYImgFboRender {
-
     private Context context;
 
     private float[] vertexData = {

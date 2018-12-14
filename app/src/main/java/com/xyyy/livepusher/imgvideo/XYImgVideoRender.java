@@ -3,6 +3,7 @@ package com.xyyy.livepusher.imgvideo;
 import android.content.Context;
 import android.graphics.SurfaceTexture;
 import android.opengl.GLES20;
+import android.util.Log;
 
 import com.xyyy.livepusher.R;
 import com.xyyy.livepusher.egl.XYEGLSurfaceView;
@@ -62,7 +63,7 @@ public class XYImgVideoRender implements XYEGLSurfaceView.XYGLRender {
 
     private XYImgFboRender xyImgFboRender;
 
-    private OnSurfaceCreateListener onSurfaceCreateListener;
+    private OnRenderCreateListener onRenderCreateListener;
 
 
     public XYImgVideoRender(Context context) {
@@ -84,8 +85,8 @@ public class XYImgVideoRender implements XYEGLSurfaceView.XYGLRender {
 
     }
 
-    public void setOnSurfaceCreateListener(OnSurfaceCreateListener onSurfaceCreateListener) {
-        this.onSurfaceCreateListener = onSurfaceCreateListener;
+    public void setOnSurfaceCreateListener(OnRenderCreateListener onRenderCreateListener) {
+        this.onRenderCreateListener = onRenderCreateListener;
     }
 
     @Override
@@ -106,6 +107,15 @@ public class XYImgVideoRender implements XYEGLSurfaceView.XYGLRender {
 
     @Override
     public void onSurfaceChanged(int width, int height) {
+        xyImgFboRender.onCreate();
+        //获取顶点以及片元属性
+        String vertexSource = XYShaderUtil.getRawResource(context, R.raw.vertex_shader);
+        String fragmentSource = XYShaderUtil.getRawResource(context, R.raw.fragment_shader);
+
+        program = XYShaderUtil.createProgram(vertexSource, fragmentSource);
+
+        vPosition = GLES20.glGetAttribLocation(program, "v_Position");
+        fPosition = GLES20.glGetAttribLocation(program, "f_Position");
 
         //VBO
         int[] vbos = new int[1];
@@ -139,6 +149,8 @@ public class XYImgVideoRender implements XYEGLSurfaceView.XYGLRender {
         fboTextureid = textureIds[0];
 
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, fboTextureid);
+//        GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
+//        GLES20.glUniform1i(sampler, 0);
 
         GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_S, GLES20.GL_REPEAT);
         GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_REPEAT);
@@ -146,7 +158,7 @@ public class XYImgVideoRender implements XYEGLSurfaceView.XYGLRender {
         GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_LINEAR);
         GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR);
 
-        GLES20.glTexImage2D(GLES20.GL_TEXTURE_2D, 0, GLES20.GL_RGBA, width  , height, 0, GLES20.GL_RGBA, GLES20.GL_UNSIGNED_BYTE, null);
+        GLES20.glTexImage2D(GLES20.GL_TEXTURE_2D, 0, GLES20.GL_RGBA, width, height, 0, GLES20.GL_RGBA, GLES20.GL_UNSIGNED_BYTE, null);
         GLES20.glFramebufferTexture2D(GLES20.GL_FRAMEBUFFER, GLES20.GL_COLOR_ATTACHMENT0, GLES20.GL_TEXTURE_2D, fboTextureid, 0);//把纹理绑定到FBO上
 
         if (GLES20.glCheckFramebufferStatus(GLES20.GL_FRAMEBUFFER) != GLES20.GL_FRAMEBUFFER_COMPLETE) {
@@ -156,13 +168,15 @@ public class XYImgVideoRender implements XYEGLSurfaceView.XYGLRender {
         }
 
 
+
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, 0);
         GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, 0);
 
-
-        if (onSurfaceCreateListener != null) {
-            onSurfaceCreateListener.onSurfaceCreate(fboTextureid);
+        if(onRenderCreateListener != null)
+        {
+            onRenderCreateListener.onCreate(fboTextureid);
         }
+
         GLES20.glViewport(0, 0, width, height);
         xyImgFboRender.onChange(width,height);
 
@@ -173,9 +187,10 @@ public class XYImgVideoRender implements XYEGLSurfaceView.XYGLRender {
     public void onDrawFrame() {
 
         imgTextureId = XYShaderUtil.loadTexrute(srcImg, context);
+        Log.d("ywl5320", "id is : " + imgTextureId);
         GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, fboId);
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
-        GLES20.glClearColor(1f,0f, 0f, 1f);
+        GLES20.glClearColor(0f,1f, 0f, 1f);
 
         GLES20.glUseProgram(program);
 
@@ -198,19 +213,20 @@ public class XYImgVideoRender implements XYEGLSurfaceView.XYGLRender {
         GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, 0);
 
         int []ids = new int[]{imgTextureId};
-        GLES20.glDeleteTextures(1, ids, 0);//需要删除textures 避免上次的还存在 消耗内存
+        GLES20.glDeleteTextures(1, ids, 0);
 
         GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, 0);
-
+//        wlImgFboRender.onDraw(textureid);
         xyImgFboRender.onDraw(fboTextureid);
 
     }
-    public interface OnSurfaceCreateListener {
-        void onSurfaceCreate(int textureId);
+    public interface OnRenderCreateListener {
+        void onCreate(int textureId);
     }
 
     public void setCurrentImgSrc(int src)
     {
+        LogUtil.d("src = "+src);
         srcImg = src;
 //        imgTextureId = WlShaderUtil.loadTexrute(src, context);
     }
