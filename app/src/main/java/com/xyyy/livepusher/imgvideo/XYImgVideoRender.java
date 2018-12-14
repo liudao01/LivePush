@@ -110,15 +110,6 @@ public class XYImgVideoRender implements XYEGLSurfaceView.XYGLRender {
 
     @Override
     public void onSurfaceChanged(int width, int height) {
-        xyImgFboRender.onCreate();
-        //获取顶点以及片元属性
-        String vertexSource = XYShaderUtil.getRawResource(context, R.raw.vertex_shader);
-        String fragmentSource = XYShaderUtil.getRawResource(context, R.raw.fragment_shader);
-
-        program = XYShaderUtil.createProgram(vertexSource, fragmentSource);
-
-        vPosition = GLES20.glGetAttribLocation(program, "v_Position");
-        fPosition = GLES20.glGetAttribLocation(program, "f_Position");
 
         //VBO
         int[] vbos = new int[1];
