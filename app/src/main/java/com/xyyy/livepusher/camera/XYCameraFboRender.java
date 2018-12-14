@@ -1,6 +1,7 @@
 package com.xyyy.livepusher.camera;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.opengl.GLES20;
 
 import com.xyyy.livepusher.R;
@@ -22,7 +23,13 @@ public class XYCameraFboRender {
             -1f, -1f,
             1f, -1f,
             -1f, 1f,
-            1f, 1f
+            1f, 1f,
+
+            0f, 0f,
+            0f, 0f,
+            0f, 0f,
+            0f, 0f
+
     };
 
 
@@ -44,8 +51,34 @@ public class XYCameraFboRender {
     private int textureid;
     private int sampler;
 
+    private Bitmap bitmap;
+
+    private int bitmapTextureid;
+
     public XYCameraFboRender(Context context) {
         this.context = context;
+
+
+        //水印
+        bitmap = XYShaderUtil.createTextImage("Lml水印搞起了", 50, "#ff0000", "#00000000", 0);//生成图片
+
+        //求出宽高比例
+        float r = 1.0f * bitmap.getWidth() / bitmap.getHeight();
+        //高设置成0.1
+        float w = r * 0.1f;
+        //在opengl 坐标系中.0.8f是自己设置的起始点, 这里求出左下角X轴
+        vertexData[8] = 0.8f - w;
+        vertexData[9] = -0.8f;//左下角Y轴  这样左下角就求出来了
+        //同理
+        vertexData[10] = 0.8f;
+        vertexData[11] = -0.8f;
+
+        vertexData[12] = 0.8f - w;
+        vertexData[13] = -0.7f;
+
+        vertexData[14] = 0.8f;
+        vertexData[15] = -0.7f;
+
 
         vertexBuffer = ByteBuffer.allocateDirect(vertexData.length * 4)
                 .order(ByteOrder.nativeOrder())
@@ -61,10 +94,16 @@ public class XYCameraFboRender {
     }
 
     public void onCreate(){
+
+        //用于透明
+        GLES20.glEnable (GLES20.GL_BLEND);
+        GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA);
+        //===结束
         String vertexSource = XYShaderUtil.getRawResource(context, R.raw.vertex_shader_fbo);
         String fragmentSource = XYShaderUtil.getRawResource(context, R.raw.fragment_shader_fbo);
 
         program = XYShaderUtil.createProgram(vertexSource, fragmentSource);
+
 
 
         vPosition = GLES20.glGetAttribLocation(program, "v_Position");
@@ -87,6 +126,9 @@ public class XYCameraFboRender {
         GLES20.glBufferSubData(GLES20.GL_ARRAY_BUFFER, vertexData.length * 4, fragmentData.length * 4, fragmentBuffer);
 //        5、解绑VBO
         GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, 0);
+
+        //bitmap 获取纹理id
+        bitmapTextureid = XYShaderUtil.loadBitmapTexture(bitmap);
     }
 
     public void onChange(int width, int height) {
@@ -102,10 +144,9 @@ public class XYCameraFboRender {
 
         GLES20.glUseProgram(program);
 
-        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureId);
-
-
         GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, vboId);
+        //fbo
+        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureId);
 
         GLES20.glEnableVertexAttribArray(vPosition);
         GLES20.glVertexAttribPointer(vPosition, 2, GLES20.GL_FLOAT, false, 8,
@@ -117,15 +158,24 @@ public class XYCameraFboRender {
 
         GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4);
 
+
+        //bitmap
+
+        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, bitmapTextureid);
+
+        GLES20.glEnableVertexAttribArray(vPosition);
+        GLES20.glVertexAttribPointer(vPosition, 2, GLES20.GL_FLOAT, false, 8,
+                32);//偏移32个位置   float  32字节
+
+        GLES20.glEnableVertexAttribArray(fPosition);
+        GLES20.glVertexAttribPointer(fPosition, 2, GLES20.GL_FLOAT, false, 8,
+                vertexData.length * 4);
+
+        GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4);
+
+
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, 0);
         GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, 0);
     }
-
-
-
-
-
-
-
 
 }
