@@ -116,4 +116,5 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
                 break;
         }
     }
+
 }

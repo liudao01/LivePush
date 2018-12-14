@@ -31,4 +31,10 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(this, VideoActivity.class);
         startActivity(intent);
     }
+
+    //图片生成视频
+    public void imgvideo(View view) {
+        Intent intent = new Intent(this, ImageVideoActivity.class);
+        startActivity(intent);
+    }
 }

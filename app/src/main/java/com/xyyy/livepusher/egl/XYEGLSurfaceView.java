@@ -25,7 +25,7 @@ public abstract class XYEGLSurfaceView extends SurfaceView implements SurfaceHol
     private XYGLRender xyGLRender;
 
     //控制手动刷新还是自动刷新
-    public final static int RENDERMODE_WHEN_DIRTY = 0;
+    public final static int RENDERMODE_WHEN_DIRTY = 0;//手动
     public final static int RENDERMODE_CONTINUOUSLY = 1;
 
     private int mRenderMode = RENDERMODE_CONTINUOUSLY;

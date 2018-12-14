@@ -17,5 +17,10 @@
         android:onClick="videoRecode"
         android:layout_width="match_parent"
         android:layout_height="48dp" />
+    <Button
+        android:text="图片生成视频"
+        android:onClick="imgvideo"
+        android:layout_width="match_parent"
+        android:layout_height="48dp" />
 
 </LinearLayout>
