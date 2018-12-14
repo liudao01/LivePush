@@ -31,11 +31,11 @@ public class XYImgVideoView extends XYEGLSurfaceView {
         xyImgVideoRender = new XYImgVideoRender(context);
         setRender(xyImgVideoRender);
         setRenderMode(XYEGLSurfaceView.RENDERMODE_WHEN_DIRTY);
-        xyImgVideoRender.setOnSurfaceCreateListener(new XYImgVideoRender.OnRenderCreateListener() {
+        xyImgVideoRender.setOnRenderCreateListener(new XYImgVideoRender.OnRenderCreateListener() {
             @Override
             public void onCreate(int textureId) {
 
-            fbotextureid = textureId;
+                fbotextureid = textureId;
             }
 
         });
@@ -50,7 +50,7 @@ public class XYImgVideoView extends XYEGLSurfaceView {
     }
 
 
-    public int getFbotextureid(){
+    public int getFbotextureid() {
         return fbotextureid;
     }
 }

@@ -30,15 +30,18 @@ public class XYImgVideoRender implements XYEGLSurfaceView.XYGLRender {
             1f, 1f
 
     };
-
     private float[] fragmentData = {
-            0f, 1f,
-            1f, 1f,
             0f, 0f,
-            1f, 0f
-
-
+            1f, 0f,
+            0f, 1f,
+            1f, 1f
     };
+//    private float[] fragmentData = {
+//            0f, 1f,
+//            1f, 1f,
+//            0f, 0f,
+//            1f, 0f
+//    };
 
     private FloatBuffer vertexBuffer;
     private FloatBuffer fragmentBuffer;
@@ -85,7 +88,7 @@ public class XYImgVideoRender implements XYEGLSurfaceView.XYGLRender {
 
     }
 
-    public void setOnSurfaceCreateListener(OnRenderCreateListener onRenderCreateListener) {
+    public void setOnRenderCreateListener(OnRenderCreateListener onRenderCreateListener) {
         this.onRenderCreateListener = onRenderCreateListener;
     }
 
