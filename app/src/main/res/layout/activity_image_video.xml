@@ -13,7 +13,7 @@
         android:layout_width="match_parent"
         android:layout_height="500px" />
     <Button
-        android:text="开始"
+        android:text="开始合成"
         android:onClick="start"
         android:layout_width="match_parent"
         android:layout_height="48dp" />
