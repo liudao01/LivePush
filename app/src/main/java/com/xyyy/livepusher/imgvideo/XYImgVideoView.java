@@ -45,7 +45,7 @@ public class XYImgVideoView extends XYEGLSurfaceView {
         if (xyImgVideoRender != null) {
             xyImgVideoRender.setCurrentImgSrc(imgsrc);
             requestRender();//手动刷新 调用一次
-            LogUtil.d("手动刷新");
+            LogUtil.d("手动刷新 "+imgsrc);
         }
     }
 

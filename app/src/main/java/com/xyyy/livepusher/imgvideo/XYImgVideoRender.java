@@ -3,7 +3,6 @@ package com.xyyy.livepusher.imgvideo;
 import android.content.Context;
 import android.graphics.SurfaceTexture;
 import android.opengl.GLES20;
-import android.util.Log;
 
 import com.xyyy.livepusher.R;
 import com.xyyy.livepusher.egl.XYEGLSurfaceView;
@@ -97,14 +96,13 @@ public class XYImgVideoRender implements XYEGLSurfaceView.XYGLRender {
 
         //加载shader
         xyImgFboRender.onCreate();
-        String vertexSource = XYShaderUtil.getRawResource(context, R.raw.vertex_shader);
-        String fragmentSource = XYShaderUtil.getRawResource(context, R.raw.fragment_shader);
+        String vertexSource = XYShaderUtil.getRawResource(context, R.raw.vertex_shader_fbo);
+        String fragmentSource = XYShaderUtil.getRawResource(context, R.raw.fragment_shader_fbo);
 
         program = XYShaderUtil.createProgram(vertexSource, fragmentSource);
 
         vPosition = GLES20.glGetAttribLocation(program, "v_Position");
         fPosition = GLES20.glGetAttribLocation(program, "f_Position");
-
 
     }
 
@@ -162,17 +160,15 @@ public class XYImgVideoRender implements XYEGLSurfaceView.XYGLRender {
         }
 
 
-
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, 0);
         GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, 0);
 
-        if(onRenderCreateListener != null)
-        {
+        if (onRenderCreateListener != null) {
             onRenderCreateListener.onCreate(fboTextureid);
         }
 
         GLES20.glViewport(0, 0, width, height);
-        xyImgFboRender.onChange(width,height);
+        xyImgFboRender.onChange(width, height);
 
 
     }
@@ -181,10 +177,10 @@ public class XYImgVideoRender implements XYEGLSurfaceView.XYGLRender {
     public void onDrawFrame() {
 
         imgTextureId = XYShaderUtil.loadTexrute(srcImg, context);
-        Log.d("ywl5320", "id is : " + imgTextureId);
+        LogUtil.d("id is : " + imgTextureId);
         GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, fboId);
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
-        GLES20.glClearColor(0f,1f, 0f, 1f);
+        GLES20.glClearColor(0f, 1f, 0f, 1f);
 
         GLES20.glUseProgram(program);
 
@@ -206,7 +202,7 @@ public class XYImgVideoRender implements XYEGLSurfaceView.XYGLRender {
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, 0);
         GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, 0);
 
-        int []ids = new int[]{imgTextureId};
+        int[] ids = new int[]{imgTextureId};
         GLES20.glDeleteTextures(1, ids, 0);
 
         GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, 0);
@@ -214,13 +210,13 @@ public class XYImgVideoRender implements XYEGLSurfaceView.XYGLRender {
         xyImgFboRender.onDraw(fboTextureid);
 
     }
+
     public interface OnRenderCreateListener {
         void onCreate(int textureId);
     }
 
-    public void setCurrentImgSrc(int src)
-    {
-        LogUtil.d("src = "+src);
+    public void setCurrentImgSrc(int src) {
+        LogUtil.d("src = " + src);
         srcImg = src;
 //        imgTextureId = WlShaderUtil.loadTexrute(src, context);
     }

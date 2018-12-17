@@ -30,7 +30,7 @@ public class ImageVideoActivity extends AppCompatActivity {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                for (int i = 0; i < 257; i++) {
+                for (int i = 0; i < 256; i++) {
                     //拿到资源
                     int imgsrc = getResources().getIdentifier("img_" + i, "drawable", "com.xyyy.livepusher");
                     imgvideoview.setCurrentImg(imgsrc);
