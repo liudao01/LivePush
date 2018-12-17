@@ -2,7 +2,6 @@ package com.xyyy.livepusher.yuv;
 
 import android.content.Context;
 import android.opengl.GLES20;
-import android.opengl.Matrix;
 import android.util.Log;
 
 import com.xyyy.livepusher.R;
@@ -33,10 +32,15 @@ public class YuvRender implements XYEGLSurfaceView.XYGLRender {
 
     private FloatBuffer textureBuffer;
     private final float[] textureVertexData = {
-            1f,0f,
-            0f,0f,
-            1f,1f,
-            0f,1f
+//            1f,0f,
+//            0f,0f,
+//            1f,1f,
+//            0f,1f
+
+            0f, 1f,
+            1f, 1f,
+            0f, 0f,
+            1f, 0f
     };
 
     private int program;
@@ -61,8 +65,8 @@ public class YuvRender implements XYEGLSurfaceView.XYGLRender {
 
     private XYYuvFboRender xyYuvFboRender;
 
-    private float[] matrix = new float[16];
-    private int u_matrix;
+//    private float[] matrix = new float[16];
+//    private int u_matrix;
 
     public YuvRender(Context context) {
         this.context = context;
@@ -78,7 +82,7 @@ public class YuvRender implements XYEGLSurfaceView.XYGLRender {
                 .asFloatBuffer()
                 .put(textureVertexData);
         textureBuffer.position(0);
-        Matrix.setIdentityM(matrix, 0);
+//        Matrix.setIdentityM(matrix, 0);
 
     }
 
@@ -90,7 +94,7 @@ public class YuvRender implements XYEGLSurfaceView.XYGLRender {
         program = XYShaderUtil.createProgram(vertexShader, fragmentShader);
         vPosition = GLES20.glGetAttribLocation(program, "v_Position");
         fPosition = GLES20.glGetAttribLocation(program, "f_Position");
-        u_matrix = GLES20.glGetUniformLocation(program, "u_Matrix");
+//        u_matrix = GLES20.glGetUniformLocation(program, "u_Matrix");
 
         sampler_y = GLES20.glGetUniformLocation(program, "sampler_y");
         sampler_u = GLES20.glGetUniformLocation(program, "sampler_u");
@@ -144,7 +148,7 @@ public class YuvRender implements XYEGLSurfaceView.XYGLRender {
 
     @Override
     public void onSurfaceChanged(int width, int height) {
-        Matrix.rotateM(matrix, 0, 180f, 1, 0, 0);
+//        Matrix.rotateM(matrix, 0, 180f, 1, 0, 0);
         GLES20.glViewport(0, 0, width, height);
         xyYuvFboRender.onChange(width, height);
     }
@@ -158,10 +162,11 @@ public class YuvRender implements XYEGLSurfaceView.XYGLRender {
         if(w > 0 && h > 0 && y != null && u != null && v != null)
         {
             GLES20.glUseProgram(program);
-            GLES20.glUniformMatrix4fv(u_matrix, 1, false, matrix, 0);
+//            GLES20.glUniformMatrix4fv(u_matrix, 1, false, matrix, 0);
             GLES20.glEnableVertexAttribArray(vPosition);
             GLES20.glVertexAttribPointer(vPosition, 2, GLES20.GL_FLOAT, false,
                     8, vertexBuffer);
+
             GLES20.glEnableVertexAttribArray(fPosition);
             GLES20.glVertexAttribPointer(fPosition,2,GLES20.GL_FLOAT,false,8, textureBuffer);
 
