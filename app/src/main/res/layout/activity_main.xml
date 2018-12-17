@@ -22,5 +22,10 @@
         android:onClick="imgvideo"
         android:layout_width="match_parent"
         android:layout_height="48dp" />
+    <Button
+        android:text="播放YUV视频数据"
+        android:onClick="yuvplay"
+        android:layout_width="match_parent"
+        android:layout_height="48dp" />
 
 </LinearLayout>

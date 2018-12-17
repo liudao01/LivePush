@@ -29,6 +29,7 @@ public class XYImgVideoRender implements XYEGLSurfaceView.XYGLRender {
             1f, 1f
 
     };
+    //因为经过了编码的过程 所以这里的纹理坐标需要颠倒
     private float[] fragmentData = {
             0f, 0f,
             1f, 0f,
