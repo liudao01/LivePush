@@ -8,7 +8,7 @@
 #include <malloc.h>
 #include <string.h>
 #include "XYQueue.h"
-
+#include "XYCallJava.h"
 extern "C" {
 #include "librtmp/rtmp.h"
 };
@@ -18,11 +18,11 @@ public:
     RTMP *rtmp = NULL;
     char *url = NULL;
     XYQueue *xyQueue = NULL;
-    pthread_t push_thread;
-
+    pthread_t push_thread = NULL;
+    XYCallJava *xyCallJava= NULL;
 
 public:
-    RtmpPush(const char *url);
+    RtmpPush(const char *url,XYCallJava *xyCallJava);
     ~RtmpPush();
     void init();
 

@@ -5,11 +5,11 @@
 
 #include "RtmpPush.h"
 
-RtmpPush::RtmpPush(const char *url) {
+RtmpPush::RtmpPush(const char *url,XYCallJava *xyCallJava) {
 
     this->url = static_cast<char *>(malloc(512));
     strcpy(this->url, url);
-
+    this->xyCallJava = xyCallJava;
     this->xyQueue = new XYQueue();
 
 
@@ -34,14 +34,17 @@ void *callBackPush(void *data) {
     if (!RTMP_Connect(rtmpPush->rtmp, NULL)) {
         //失败
         LOGE("can not connect the url")
+        rtmpPush->xyCallJava->onConnectFail("can not connect the url");
         goto end;
     }
 
     if (!RTMP_ConnectStream(rtmpPush->rtmp, 0)) {
         LOGE("can not connect the stream of service")
+        rtmpPush->xyCallJava->onConnectFail("can not connect the stream of service");
         goto end;
     }
     LOGD("链接成功");
+    rtmpPush->xyCallJava->onConnectsuccess();
 
 //    while (true) {
 //
@@ -55,6 +58,8 @@ void *callBackPush(void *data) {
 }
 
 void RtmpPush::init() {
+
+    xyCallJava->onConnectint(XY_THREAD_MAIN);
     pthread_create(&push_thread, NULL, callBackPush, this);
 
 }

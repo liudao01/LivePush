@@ -7,6 +7,8 @@ import android.view.View;
 
 import com.xyyy.livepusher.R;
 import com.xyyy.livepusher.push.PushVideo;
+import com.xyyy.livepusher.push.XYConnectListener;
+import com.xyyy.livepusher.util.LogUtil;
 
 public class LivePushActivity extends AppCompatActivity {
 
@@ -18,6 +20,25 @@ public class LivePushActivity extends AppCompatActivity {
         setContentView(R.layout.activity_live_push);
 
         pushVideo = new PushVideo();
+
+        pushVideo.setConnectListener(new XYConnectListener() {
+            @Override
+            public void onConnecting() {
+                LogUtil.d("链接ing");
+            }
+
+            @Override
+            public void onConnectSuccess() {
+                LogUtil.d("链接成功");
+
+            }
+
+            @Override
+            public void onConnectFail(String msg) {
+                LogUtil.d("链接失败"+msg);
+
+            }
+        });
     }
 
 
