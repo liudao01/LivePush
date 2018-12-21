@@ -27,5 +27,10 @@
         android:onClick="yuvplay"
         android:layout_width="match_parent"
         android:layout_height="48dp" />
+    <Button
+        android:text="直播推流"
+        android:onClick="livepush"
+        android:layout_width="match_parent"
+        android:layout_height="48dp" />
 
 </LinearLayout>

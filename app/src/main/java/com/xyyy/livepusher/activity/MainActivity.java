@@ -9,10 +9,6 @@ import com.xyyy.livepusher.R;
 
 public class MainActivity extends AppCompatActivity {
 
-    // Used to load the 'native-lib' library on application startup.
-    static {
-        System.loadLibrary("native-lib");
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,5 +39,11 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(this, YuvActivity.class);
         startActivity(intent);
 
+    }
+
+    public void livepush(View view) {
+
+        Intent intent = new Intent(this, LivePushActivity.class);
+        startActivity(intent);
     }
 }
