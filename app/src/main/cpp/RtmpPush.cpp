@@ -64,8 +64,6 @@ void *callBackPush(void *data) {
             RTMPPacket_Free(packet);
             free(packet);
             packet = NULL;
-        } else {
-            LOGD("packet == null")
         }
 
     }

@@ -38,7 +38,7 @@ public class LivePushActivity extends AppCompatActivity {
             public void onConnectSuccess() {
                 LogUtil.d("链接成功");
                 xyPushEncodec = new XYPushEncodec(LivePushActivity.this, cameraview.getTextureId());
-                xyPushEncodec.initEncodec(cameraview.getEglContext(),1080,1920,44100,2);
+                xyPushEncodec.initEncodec(cameraview.getEglContext(),1080/2/2,1920/2/2,44100,2);
                 xyPushEncodec.startRecord();
 
 
