@@ -23,6 +23,17 @@ public class PushVideo {
         }
     }
 
+    public void pushSPSPPS(byte[] sps, byte[] pps) {
+        if (sps != null && pps != null) {
+            pushSPSPPS(sps, sps.length, pps, pps.length);
+        }
+    }
+
+    public void pushVideoData(byte[] data,boolean keyframe){
+        if (data != null) {
+            pushvideodata(data, data.length,keyframe);
+        }
+    }
 
     public void setConnectListener(XYConnectListener connectListener) {
         this.connectListener = connectListener;
@@ -55,7 +66,11 @@ public class PushVideo {
     }
 
 
+
     private  native void initPush(String pushUrl);
 
+    private native void pushSPSPPS(byte[] sps,int sps_len,byte[] pps,int pps_len);
+
+    private native void pushvideodata(byte[] data,int data_len,boolean keyframe);
 
 }

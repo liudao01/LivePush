@@ -196,6 +196,7 @@ public abstract class XYBasePushEncoder {
         private boolean isChange = false;
         private boolean isStart = false;
 
+
         public XYEGLMediaThread(WeakReference<XYBasePushEncoder> encoder) {
             this.encoder = encoder;
         }
@@ -310,6 +311,8 @@ public abstract class XYBasePushEncoder {
         private byte[] sps;
         private byte[] pps;
 
+        private boolean keyFrame = false;
+
         public VideoEncodecThread(WeakReference<XYBasePushEncoder> encoder) {
             this.encoder = encoder;
             videoEncodec = encoder.get().videoEncodec;
@@ -336,6 +339,9 @@ public abstract class XYBasePushEncoder {
                 }
                 //得到队列中可用的输出的索引
                 int outputBufferIndex = videoEncodec.dequeueOutputBuffer(videoBufferInfo, 0);
+
+                keyFrame = false;//把是否关键帧设置为false
+
                 if (outputBufferIndex == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED) {
 
                     LogUtil.d("INFO_OUTPUT_FORMAT_CHANGED");
@@ -367,13 +373,27 @@ public abstract class XYBasePushEncoder {
                         //得到data
                         byte[] data = new byte[outputBuffer.remaining()];
                         outputBuffer.get(data, 0, data.length);
-                        LogUtil.d("data: " + byteToHex(data));
+//                        LogUtil.d("data: " + byteToHex(data));
+                        //判断关键帧非关键帧
+                        if (videoBufferInfo.flags == MediaCodec.BUFFER_FLAG_KEY_FRAME) {
+                            keyFrame = true;
+                            LogUtil.d("关键帧 sps+ " + sps);
+                            LogUtil.d("关键帧 pps+ " + pps);
+                            //发送sps pps  回调过去
+                            if (encoder.get().onMediaInfoListener != null) {
+                                encoder.get().onMediaInfoListener.onSPSPPSInfo(sps, pps);
+                            }
 
-
+                        }
 
                         if (encoder.get().onMediaInfoListener != null) {
+                            //返回videoinf数据
+                            LogUtil.d("视频数据 data = "+data);
+                            encoder.get().onMediaInfoListener.onVideoInfo(data, keyFrame);
+                            //时间
                             encoder.get().onMediaInfoListener.onMediaTime((int) videoBufferInfo.presentationTimeUs / 1000000);
                         }
+
 
                         //编码完了释放
                         videoEncodec.releaseOutputBuffer(outputBufferIndex, false);
@@ -469,8 +489,6 @@ public abstract class XYBasePushEncoder {
                         AudioBufferInfo.presentationTimeUs = AudioBufferInfo.presentationTimeUs - pts;//实现pts递增
 
 
-
-
                         if (encoder.get().onMediaInfoListener != null) {
                             encoder.get().onMediaInfoListener.onMediaTime((int) AudioBufferInfo.presentationTimeUs / 1000000);
                         }
@@ -492,8 +510,15 @@ public abstract class XYBasePushEncoder {
         }
     }
 
+    /**
+     * 回调
+     */
     public interface OnMediaInfoListener {
         void onMediaTime(int times);
+
+        void onSPSPPSInfo(byte[] sps, byte[] pps);
+
+        void onVideoInfo(byte[] data, boolean keyframe);
 
     }
 

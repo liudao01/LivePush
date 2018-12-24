@@ -41,7 +41,7 @@ RTMPPacket *XYQueue::getRtmpPacket() {
         pthread_cond_wait(&condPacket, &mutexPacket);
     }
     pthread_mutex_unlock(&mutexPacket);
-    return NULL;
+    return p;
 }
 
 void XYQueue::clearQueue() {

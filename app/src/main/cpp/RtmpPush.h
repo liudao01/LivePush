@@ -9,6 +9,7 @@
 #include <string.h>
 #include "XYQueue.h"
 #include "XYCallJava.h"
+
 extern "C" {
 #include "librtmp/rtmp.h"
 };
@@ -19,13 +20,19 @@ public:
     char *url = NULL;
     XYQueue *xyQueue = NULL;
     pthread_t push_thread = NULL;
-    XYCallJava *xyCallJava= NULL;
-
+    XYCallJava *xyCallJava = NULL;
+    bool startPushing = false;
+    long startTime = 0;
 public:
-    RtmpPush(const char *url,XYCallJava *xyCallJava);
+    RtmpPush(const char *url, XYCallJava *xyCallJava);
+
     ~RtmpPush();
+
     void init();
 
+    void pushSPSPPS(char *sps, int sps_len, char *pps, int pps_len);
+
+    void pushVideoData(char *data, int data_len, bool keyframe);
 };
 
 #endif //LIVE_RTMPPUSH_H

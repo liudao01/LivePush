@@ -8,6 +8,7 @@ import android.view.View;
 import com.xyyy.livepusher.R;
 import com.xyyy.livepusher.camera.XYCamaryView;
 import com.xyyy.livepusher.push.PushVideo;
+import com.xyyy.livepusher.push.XYBasePushEncoder;
 import com.xyyy.livepusher.push.XYConnectListener;
 import com.xyyy.livepusher.push.XYPushEncodec;
 import com.xyyy.livepusher.util.LogUtil;
@@ -39,6 +40,28 @@ public class LivePushActivity extends AppCompatActivity {
                 xyPushEncodec = new XYPushEncodec(LivePushActivity.this, cameraview.getTextureId());
                 xyPushEncodec.initEncodec(cameraview.getEglContext(),1080,1920,44100,2);
                 xyPushEncodec.startRecord();
+
+
+                xyPushEncodec.setOnMediaInfoListener(new XYBasePushEncoder.OnMediaInfoListener() {
+                    @Override
+                    public void onMediaTime(int times) {
+//                        LogUtil.d("时间");
+                    }
+
+                    @Override
+                    public void onSPSPPSInfo(byte[] sps, byte[] pps) {
+//                        LogUtil.d("回调SPS PPS 数据 推头信息");
+                        pushVideo.pushSPSPPS(sps,pps);
+
+                    }
+
+                    @Override
+                    public void onVideoInfo(byte[] data, boolean keyframe) {
+
+                        LogUtil.d("回调视频数据 推流");
+                        pushVideo.pushVideoData(data,keyframe);
+                    }
+                });
             }
 
             @Override
