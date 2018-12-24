@@ -136,7 +136,7 @@ public abstract class XYBasePushEncoder {
             videoFormat = MediaFormat.createVideoFormat(mimeType, width, height);
             videoFormat.setInteger(MediaFormat.KEY_COLOR_FORMAT, MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface);//Surface
             videoFormat.setInteger(MediaFormat.KEY_BIT_RATE, width * height * 4);//码率
-            videoFormat.setInteger(MediaFormat.KEY_FRAME_RATE, 30);//帧率
+            videoFormat.setInteger(MediaFormat.KEY_FRAME_RATE, 30);//帧率  30帧是一个i 帧
             videoFormat.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, 1);//I帧 关键帧的间隔  设置为1秒
 
             //编码
@@ -307,6 +307,8 @@ public abstract class XYBasePushEncoder {
 
 
         private long pts;
+        private byte[] sps;
+        private byte[] pps;
 
         public VideoEncodecThread(WeakReference<XYBasePushEncoder> encoder) {
             this.encoder = encoder;
@@ -320,6 +322,8 @@ public abstract class XYBasePushEncoder {
             isExit = false;
             videoEncodec.start();
             pts = 0;
+
+
             while (true) {
                 if (isExit) {
                     //先把编码器停止
@@ -335,6 +339,18 @@ public abstract class XYBasePushEncoder {
                 if (outputBufferIndex == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED) {
 
                     LogUtil.d("INFO_OUTPUT_FORMAT_CHANGED");
+
+                    ByteBuffer spsb = videoEncodec.getOutputFormat().getByteBuffer("csd-0");
+                    sps = new byte[spsb.remaining()];
+                    spsb.get(sps, 0, sps.length);
+
+                    ByteBuffer ppsb = videoEncodec.getOutputFormat().getByteBuffer("csd-1");
+                    pps = new byte[ppsb.remaining()];
+                    ppsb.get(pps, 0, pps.length);
+
+                    LogUtil.d("得到 sps = " + byteToHex(sps));
+                    LogUtil.d("得到 pps = " + byteToHex(pps));
+
                 } else {
                     while (outputBufferIndex >= 0) {
 
@@ -346,6 +362,14 @@ public abstract class XYBasePushEncoder {
                             pts = videoBufferInfo.presentationTimeUs;
                         }
                         videoBufferInfo.presentationTimeUs = videoBufferInfo.presentationTimeUs - pts;//实现pts递增
+
+
+                        //得到data
+                        byte[] data = new byte[outputBuffer.remaining()];
+                        outputBuffer.get(data, 0, data.length);
+                        LogUtil.d("data: " + byteToHex(data));
+
+
 
                         if (encoder.get().onMediaInfoListener != null) {
                             encoder.get().onMediaInfoListener.onMediaTime((int) videoBufferInfo.presentationTimeUs / 1000000);
@@ -444,9 +468,13 @@ public abstract class XYBasePushEncoder {
                         }
                         AudioBufferInfo.presentationTimeUs = AudioBufferInfo.presentationTimeUs - pts;//实现pts递增
 
-//                            if (encoder.get().onMediaInfoListener != null) {
-//                                encoder.get().onMediaInfoListener.onMediaTime((int) AudioBufferInfo.presentationTimeUs / 1000000);
-//                            }
+
+
+
+                        if (encoder.get().onMediaInfoListener != null) {
+                            encoder.get().onMediaInfoListener.onMediaTime((int) AudioBufferInfo.presentationTimeUs / 1000000);
+                        }
+
 
                         audioEncodec.releaseOutputBuffer(outputBufferIndex, false);
                         outputBufferIndex = audioEncodec.dequeueOutputBuffer(AudioBufferInfo, 0);
@@ -472,6 +500,22 @@ public abstract class XYBasePushEncoder {
     private long getAudioPts(int size, int sampleRate) {
         audioPts = audioPts + (long) ((1.0 * size) / (sampleRate * 2 * 2) * 1000000.0);
         return audioPts;
+    }
+
+    public static String byteToHex(byte[] bytes) {
+        StringBuffer stringBuffer = new StringBuffer();
+        for (int i = 0; i < bytes.length; i++) {
+            String hex = Integer.toHexString(bytes[i]);
+            if (hex.length() == 1) {
+                stringBuffer.append("0" + hex);
+            } else {
+                stringBuffer.append(hex);
+            }
+            if (i > 20) {
+                break;
+            }
+        }
+        return stringBuffer.toString();
     }
 }
 
