@@ -35,6 +35,16 @@ public class PushVideo {
         }
     }
 
+    public void pushAudioData(byte[] data) {
+        if (data != null) {
+            pushAudioData(data,data.length);
+        }
+    }
+
+    public void stopPush(){
+        pushStop();
+    }
+
     public void setConnectListener(XYConnectListener connectListener) {
         this.connectListener = connectListener;
     }
@@ -73,4 +83,7 @@ public class PushVideo {
 
     private native void pushvideodata(byte[] data,int data_len,boolean keyframe);
 
+    private native void pushAudioData(byte[] data,int data_len);
+
+    private native void pushStop();
 }

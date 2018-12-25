@@ -38,7 +38,7 @@ public class LivePushActivity extends AppCompatActivity {
             public void onConnectSuccess() {
                 LogUtil.d("链接成功");
                 xyPushEncodec = new XYPushEncodec(LivePushActivity.this, cameraview.getTextureId());
-                xyPushEncodec.initEncodec(cameraview.getEglContext(),1080/2/2,1920/2/2,44100,2);
+                xyPushEncodec.initEncodec(cameraview.getEglContext(), 1080 / 2 / 2, 1920 / 2 / 2, 44100, 2);
                 xyPushEncodec.startRecord();
 
 
@@ -51,7 +51,7 @@ public class LivePushActivity extends AppCompatActivity {
                     @Override
                     public void onSPSPPSInfo(byte[] sps, byte[] pps) {
 //                        LogUtil.d("回调SPS PPS 数据 推头信息");
-                        pushVideo.pushSPSPPS(sps,pps);
+                        pushVideo.pushSPSPPS(sps, pps);
 
                     }
 
@@ -59,7 +59,12 @@ public class LivePushActivity extends AppCompatActivity {
                     public void onVideoInfo(byte[] data, boolean keyframe) {
 
                         LogUtil.d("回调视频数据 推流");
-                        pushVideo.pushVideoData(data,keyframe);
+                        pushVideo.pushVideoData(data, keyframe);
+                    }
+
+                    @Override
+                    public void onAudioInfo(byte[] data) {
+                        pushVideo.pushAudioData(data);
                     }
                 });
             }
@@ -83,9 +88,9 @@ public class LivePushActivity extends AppCompatActivity {
             pushVideo.initLivePush("rtmp://120.27.17.132/myapp/mystream");
 
         } else {
-
             if (xyPushEncodec != null) {
                 xyPushEncodec.stopRecord();
+                pushVideo.stopPush();
                 xyPushEncodec = null;
             }
         }

@@ -44,6 +44,8 @@ public abstract class XYBasePushEncoder {
 
     private OnMediaInfoListener onMediaInfoListener;
 
+    private AudioRecordUtil audioRecordUtil;
+
     //控制手动刷新还是自动刷新
     public final static int RENDERMODE_WHEN_DIRTY = 0;
     public final static int RENDERMODE_CONTINUOUSLY = 1;
@@ -90,12 +92,15 @@ public abstract class XYBasePushEncoder {
             xyeglMediaThread.isChange = true;
             xyeglMediaThread.start();
             videoEncodecThread.start();
-//            audioEncodecThread.start();
+            audioEncodecThread.start();
+            audioRecordUtil.startRecord();
         }
     }
 
     public void stopRecord() {
         if (xyeglMediaThread != null && videoEncodecThread != null && audioEncodecThread != null) {
+
+            audioRecordUtil.stopRecord();
             videoEncodecThread.exit();
             audioEncodecThread.exit();
             xyeglMediaThread.onDestory();
@@ -105,6 +110,9 @@ public abstract class XYBasePushEncoder {
         }
     }
 
+    public void stopPush(){
+
+    }
 
     /**
      * 封装器
@@ -119,6 +127,23 @@ public abstract class XYBasePushEncoder {
         initVideoEncodec(MediaFormat.MIMETYPE_VIDEO_AVC, width, height);
         initAudioEncodec(MediaFormat.MIMETYPE_AUDIO_AAC, sampleRate, channelcount);
 
+        //初始化录音 获取PCM数据
+        initPCMRecord();
+    }
+
+    /**
+     *
+     */
+    private void initPCMRecord() {
+        audioRecordUtil = new AudioRecordUtil();
+        audioRecordUtil.setOnRecordListener(new AudioRecordUtil.OnRecordListener() {
+            @Override
+            public void recordByte(byte[] audioData, int readSize) {
+                if (audioRecordUtil.isStart()) {
+                    putPCMData(audioData, readSize);
+                }
+            }
+        });
     }
 
 
@@ -170,7 +195,7 @@ public abstract class XYBasePushEncoder {
             audioFormat = MediaFormat.createAudioFormat(mimeType, sampleRate, channelCount);
             audioFormat.setInteger(MediaFormat.KEY_BIT_RATE, 96000);//比特率
             audioFormat.setInteger(MediaFormat.KEY_AAC_PROFILE, MediaCodecInfo.CodecProfileLevel.AACObjectLC);//等级
-            audioFormat.setInteger(MediaFormat.KEY_MAX_INPUT_SIZE, 4096);
+            audioFormat.setInteger(MediaFormat.KEY_MAX_INPUT_SIZE, 4096*10);//buffer  临时的乘10  做的好的话应该分包
 
             audioEncodec = MediaCodec.createEncoderByType(mimeType);
             audioEncodec.configure(audioFormat, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE);
@@ -388,7 +413,7 @@ public abstract class XYBasePushEncoder {
 
                         if (encoder.get().onMediaInfoListener != null) {
                             //返回videoinf数据
-                            LogUtil.d("视频数据 data = "+data);
+                            LogUtil.d("视频数据 data = " + data);
                             encoder.get().onMediaInfoListener.onVideoInfo(data, keyFrame);
                             //时间
                             encoder.get().onMediaInfoListener.onMediaTime((int) videoBufferInfo.presentationTimeUs / 1000000);
@@ -476,6 +501,8 @@ public abstract class XYBasePushEncoder {
 
                 int outputBufferIndex = audioEncodec.dequeueOutputBuffer(AudioBufferInfo, 0);
                 if (outputBufferIndex == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED) {
+
+
                 } else {
 
                     while (outputBufferIndex >= 0) {
@@ -493,6 +520,13 @@ public abstract class XYBasePushEncoder {
                             encoder.get().onMediaInfoListener.onMediaTime((int) AudioBufferInfo.presentationTimeUs / 1000000);
                         }
 
+                        //得到data
+                        byte[] data = new byte[outputBuffer.remaining()];
+                        outputBuffer.get(data, 0, data.length);
+//                        LogUtil.d("data: " + byteToHex(data));
+                        if (encoder.get().onMediaInfoListener != null) {
+                            encoder.get().onMediaInfoListener.onAudioInfo(data);
+                        }
 
                         audioEncodec.releaseOutputBuffer(outputBufferIndex, false);
                         outputBufferIndex = audioEncodec.dequeueOutputBuffer(AudioBufferInfo, 0);
@@ -519,6 +553,8 @@ public abstract class XYBasePushEncoder {
         void onSPSPPSInfo(byte[] sps, byte[] pps);
 
         void onVideoInfo(byte[] data, boolean keyframe);
+
+        void onAudioInfo(byte[] data);
 
     }
 

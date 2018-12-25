@@ -7,15 +7,19 @@
 RtmpPush *rtmpPush = NULL;
 XYCallJava *xyCallJava = NULL;
 JavaVM *javaVM = NULL;
-
+bool exit = true;
 
 extern "C"
 JNIEXPORT void JNICALL
 Java_com_xyyy_livepusher_push_PushVideo_initPush(JNIEnv *env, jobject instance, jstring pushUrl_) {
     const char *pushUrl = env->GetStringUTFChars(pushUrl_, 0);
-    xyCallJava = new XYCallJava(javaVM, env, &instance);
-    rtmpPush = new RtmpPush(pushUrl, xyCallJava);
-    rtmpPush->init();
+
+    if (xyCallJava == NULL) {
+        exit = false;
+        xyCallJava = new XYCallJava(javaVM, env, &instance);
+        rtmpPush = new RtmpPush(pushUrl, xyCallJava);
+        rtmpPush->init();
+    }
 
     env->ReleaseStringUTFChars(pushUrl_, pushUrl);
 }
@@ -47,7 +51,7 @@ Java_com_xyyy_livepusher_push_PushVideo_pushSPSPPS(JNIEnv *env, jobject instance
     jbyte *pps = env->GetByteArrayElements(pps_, NULL);
 
     // TODO
-    if (rtmpPush != NULL) {
+    if (rtmpPush != NULL && !exit) {
         rtmpPush->pushSPSPPS(reinterpret_cast<char *>(sps), sps_len, reinterpret_cast<char *>(pps),
                              pps_len);
     }
@@ -64,10 +68,41 @@ Java_com_xyyy_livepusher_push_PushVideo_pushvideodata(JNIEnv *env, jobject insta
                                                       jbyteArray data_, jint data_len,
                                                       jboolean keyframe) {
     jbyte *data = env->GetByteArrayElements(data_, NULL);
-    if (rtmpPush != NULL) {
+    if (rtmpPush != NULL && !exit) {
         rtmpPush->pushVideoData(reinterpret_cast<char *>(data), data_len, keyframe);
     }
     // TODO
 
     env->ReleaseByteArrayElements(data_, data, 0);
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_xyyy_livepusher_push_PushVideo_pushAudioData(JNIEnv *env, jobject instance,
+                                                      jbyteArray data_, jint data_len) {
+    jbyte *data = env->GetByteArrayElements(data_, NULL);
+
+    // TODO
+    if (rtmpPush != NULL && !exit) {
+        rtmpPush->pushAudioData(reinterpret_cast<char *>(data), data_len);
+    }
+
+    env->ReleaseByteArrayElements(data_, data, 0);
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_xyyy_livepusher_push_PushVideo_pushStop(JNIEnv *env, jobject instance) {
+
+    // TODO
+    if (rtmpPush != NULL) {
+        exit = true;
+        rtmpPush->pushStop();
+        delete (rtmpPush);
+        delete (xyCallJava);
+        rtmpPush = NULL;
+        xyCallJava = NULL;
+    }
+
+
 }
