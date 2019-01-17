@@ -12,6 +12,9 @@ import com.ywl5320.libmusic.WlMusic;
 import com.ywl5320.listener.OnPreparedListener;
 import com.ywl5320.listener.OnShowPcmDataListener;
 
+/**
+ * 图片转视频功能
+ */
 public class ImageVideoActivity extends AppCompatActivity {
 
     private XYImgVideoView imgvideoview;

@@ -16,6 +16,9 @@ import com.ywl5320.listener.OnCompleteListener;
 import com.ywl5320.listener.OnPreparedListener;
 import com.ywl5320.listener.OnShowPcmDataListener;
 
+/**
+ *
+ */
 public class VideoActivity extends AppCompatActivity implements View.OnClickListener {
 
     private XYCamaryView cameraview;
@@ -68,6 +71,7 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
                         LogUtil.d("time = " + times);
                     }
                 });
+                LogUtil.d("看下什么时候开启");
                 xyMediaEncodec.startRecord();
             }
 
@@ -97,6 +101,7 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
 
             wlMusic.setSource(Environment.getExternalStorageDirectory().getAbsolutePath() + "/xjw.mp3");
             wlMusic.prePared();
+            LogUtil.d("录制拉");
             btRecord.setText("正在录制");
 
         } else {
